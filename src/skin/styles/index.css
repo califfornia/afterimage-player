@@ -1,0 +1,10 @@
+/* AFTERIMAGE skin stylesheet, adopted into the skin's shadow root. Order matters. */
+@import './tokens.css';
+@import './base.css';
+@import './layout.css';
+@import './controls.css';
+@import './frame-index.css';
+@import './states.css';
+@import './info.css';
+@import './stage.css';
+@import './darkroom.css';

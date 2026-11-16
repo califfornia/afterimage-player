@@ -1,0 +1,476 @@
+/* ==========================================================================
+   DARKROOM — the safelight layer
+   Loaded last. Palette lives in tokens.css; this file adds the room itself:
+   safelight glow, film grain, the print coming up in the tray, negatives
+   that develop as the reel plays, and a timer that glows like an LED.
+   The room is drawn inside the skin, behind the instrument: it never
+   paints on the host page and never on the picture.
+   ========================================================================== */
+
+
+/* ---------- The room ----------
+   The skin's own surround: room colour, the safelight hanging above the
+   bench, and film grain on the walls. Layered behind the instrument (the
+   container is a stacking context), so the picture and controls stay clean. */
+
+.ai:not(:fullscreen):not([data-stage]):not([data-layout='overlay']) {
+  background: var(--ai-surround, var(--ai-bg));
+}
+
+/* Safelight: a warm cone from the top of the room. */
+.ai::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 38% at 50% -6%, rgb(var(--ai-accent-rgb) / 0.2), transparent 70%);
+}
+
+/* Film grain on the walls, shifting like a projected grain plate. */
+.ai::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -0.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: dr-grain 0.9s steps(6) infinite;
+}
+
+@keyframes dr-grain {
+  0% { background-position: 0 0; }
+  20% { background-position: -14px 9px; }
+  40% { background-position: 9px -18px; }
+  60% { background-position: -18px -4px; }
+  80% { background-position: 13px 13px; }
+  100% { background-position: 0 0; }
+}
+
+/* The viewer layout is all picture: no room. */
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay'])::before,
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay'])::after {
+  display: none;
+}
+
+/* ---------- Header: the lamp and the wordmark ---------- */
+
+.ai-header {
+  border-bottom-color: rgb(var(--ai-accent-rgb) / 0.14);
+}
+
+.ai-brand {
+  align-items: center;
+}
+
+/* The safelight itself: a small lamp beside the wordmark. */
+.ai-brand::before {
+  content: '';
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffb59f, var(--ai-accent) 55%, #a01d0a);
+  box-shadow: var(--ai-glow), 0 0 40px 6px rgb(var(--ai-accent-rgb) / 0.22);
+  animation: dr-lamp 7s ease-in-out infinite;
+}
+
+@keyframes dr-lamp {
+  0%, 100% { opacity: 1; }
+  47% { opacity: 1; }
+  48% { opacity: 0.72; }
+  49% { opacity: 1; }
+  50% { opacity: 0.85; }
+  52% { opacity: 1; }
+}
+
+.ai-wordmark {
+  text-shadow: 0 0 14px rgb(var(--ai-accent-rgb) / 0.45);
+}
+
+/* ---------- Status: lit while exposing ---------- */
+
+.ai-status[data-status='playing'] .ai-status__mark {
+  border-radius: 50%;
+  box-shadow: var(--ai-glow);
+}
+
+.ai[data-inspecting] .ai-status {
+  text-shadow: 0 0 10px rgb(var(--ai-accent-rgb) / 0.5);
+}
+
+.ai[data-inspecting] .ai-status .ai-status__mark {
+  box-shadow: inset 0 0 0 2px var(--ai-bg), var(--ai-glow);
+}
+
+/* ---------- The easel: halo around the print ---------- */
+
+.ai:not(:fullscreen):not([data-stage]):not([data-layout='overlay']) .ai-surface {
+  box-shadow:
+    0 0 0 1px rgb(var(--ai-accent-rgb) / 0.1),
+    /* Lifted so the glow ends at the picture's lower edge: none under the strip. */
+    0 -60px 100px -40px rgb(var(--ai-accent-rgb) / 0.35),
+    0 0 60px -10px rgb(0 0 0 / 0.9);
+}
+
+/* The print comes up in the tray: latent and red while loading, then developed. */
+.ai-media-slot::slotted(*) {
+  transition: filter var(--ai-develop) cubic-bezier(0.45, 0, 0.15, 1);
+}
+
+.ai[data-status='loading'] .ai-media-slot::slotted(*) {
+  filter: sepia(1) saturate(4) brightness(0.16) contrast(1.8);
+}
+
+/* Inspecting: the easel blades light up. */
+.ai[data-inspecting] .ai-reg {
+  filter: drop-shadow(0 0 4px rgb(var(--ai-accent-rgb) / 0.8));
+}
+
+.ai[data-inspecting] .ai-surface::after {
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--ai-accent-rgb) / 0.4),
+    inset 0 0 80px rgb(var(--ai-accent-rgb) / 0.12);
+}
+
+/* ---------- Pause read-out: the darkroom timer ---------- */
+
+.ai-hud__tag {
+  box-shadow: 0 0 22px rgb(var(--ai-accent-rgb) / 0.45);
+}
+
+.ai-hud__readout {
+  background: rgb(var(--ai-scrim-rgb) / 0.86);
+  box-shadow: -8px 0 24px -12px rgb(var(--ai-accent-rgb) / 0.7);
+  backdrop-filter: blur(6px);
+}
+
+.ai-hud__frame {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-shadow: var(--ai-glow);
+}
+
+/* ---------- Transport ---------- */
+
+/* Play is the safelight switch. */
+.ai-icon-button--primary {
+  border-radius: 50%;
+  background: var(--ai-accent);
+  color: var(--ai-accent-ink);
+  box-shadow:
+    0 0 0 1px rgb(255 160 140 / 0.35) inset,
+    0 0 22px rgb(var(--ai-accent-rgb) / 0.35);
+  transition:
+    background-color var(--ai-fast) var(--ai-ease),
+    box-shadow var(--ai-med) var(--ai-ease),
+    transform var(--ai-fast) var(--ai-ease);
+}
+
+/* Playing: the switch dims to a steady ember. */
+.ai-play:not([data-paused]) {
+  box-shadow:
+    0 0 0 1px rgb(255 160 140 / 0.3) inset,
+    0 0 14px rgb(var(--ai-accent-rgb) / 0.2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ai-icon-button--primary:hover {
+    background: #ff6a50;
+    box-shadow:
+      0 0 0 1px rgb(255 190 170 / 0.5) inset,
+      0 0 34px rgb(var(--ai-accent-rgb) / 0.55);
+  }
+
+  .ai-button--primary:hover {
+    background: #fff1ea;
+  }
+}
+
+.ai-icon-button--primary:active {
+  background: #e03a20;
+}
+
+.ai-icon-button--primary:focus-visible {
+  box-shadow: var(--ai-focus), 0 0 34px rgb(var(--ai-accent-rgb) / 0.55);
+}
+
+.ai-clock__current {
+  text-shadow: 0 0 10px rgb(var(--ai-accent-rgb) / 0.35);
+}
+
+/* Frame stepper lit while inspecting. */
+.ai[data-inspecting] .ai-inspect {
+  border-color: rgb(var(--ai-accent-rgb) / 0.6);
+  box-shadow: 0 0 24px -4px rgb(var(--ai-accent-rgb) / 0.35);
+}
+
+.ai[data-inspecting] .ai-inspect__frame {
+  text-shadow: var(--ai-glow);
+}
+
+/* ---------- Frame index: a strip of negative ---------- */
+
+/* The bench below the easel stays neutral and legible: no safelight here. */
+.ai-chapter,
+.ai-index__source {
+  color: var(--ai-ink-2);
+}
+
+.ai-chapter[data-active],
+.ai-index__heading,
+.ai-index__chapter {
+  color: var(--ai-paper);
+}
+
+.ai-cell__edge {
+  opacity: 1;
+}
+
+.ai-sheet {
+  background-color: #2b1309; /* orange-brown negative base */
+}
+
+/* The edge exposes with playback, in edge-print amber. */
+.ai-sheet::before {
+  background:
+    repeating-linear-gradient(90deg, rgb(0 0 0 / 0.55) 0 5px, transparent 5px 12px) 3px 2px / 100% 4px no-repeat,
+    rgb(255 170 77 / 0.85);
+  box-shadow: 0 0 12px rgb(255 170 77 / 0.35);
+}
+
+.ai-cell {
+  background: #1d0c06;
+}
+
+/* Frames not yet seen are negatives. They develop into positives as the reel passes. */
+.ai-cell__image {
+  filter: invert(1) sepia(1) saturate(2.2) hue-rotate(-28deg) brightness(0.42) contrast(1.2);
+  transition: filter var(--ai-develop) cubic-bezier(0.45, 0, 0.15, 1);
+}
+
+.ai-cell[data-current]::after {
+  box-shadow:
+    inset 0 0 0 1px var(--ai-accent),
+    inset 0 0 18px rgb(var(--ai-accent-rgb) / 0.35);
+}
+
+.ai-cell__edge {
+  color: var(--ai-amber);
+  text-shadow: 0 0 4px rgb(0 0 0 / 0.95);
+}
+
+.ai-playhead,
+.ai-playhead::before,
+.ai-sheet::after {
+  box-shadow: 0 0 8px rgb(var(--ai-accent-rgb) / 0.9);
+}
+
+.ai-loupe {
+  --ai-film: #2b1309;
+  --ai-loupe-holes: repeating-linear-gradient(90deg, rgb(12 7 6 / 0.92) 0 7px, transparent 7px 15px);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.4),
+    0 18px 40px rgb(0 0 0 / 0.6),
+    0 0 50px -10px rgb(var(--ai-accent-rgb) / 0.35);
+}
+
+.ai-loupe__chapter {
+  color: var(--ai-amber);
+}
+
+/* ---------- Menus and panels: lit from above ---------- */
+
+.ai-menu {
+  border-color: rgb(var(--ai-accent-rgb) / 0.22);
+  background: rgb(22 12 10 / 0.94);
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 16px 40px rgb(0 0 0 / 0.6),
+    0 0 40px -12px rgb(var(--ai-accent-rgb) / 0.35);
+}
+
+.ai-info {
+  background: rgb(22 12 10 / 0.9);
+}
+
+/* ---------- States: warm scrims ---------- */
+
+.ai-loading {
+  background: rgb(var(--ai-scrim-rgb) / 0.55);
+}
+
+.ai-loading__label {
+  color: var(--ai-accent);
+  text-shadow: var(--ai-glow);
+}
+
+.ai-loading__bar::after {
+  background: var(--ai-accent);
+  box-shadow: var(--ai-glow);
+}
+
+.ai-buffering {
+  background: rgb(var(--ai-scrim-rgb) / 0.86);
+}
+
+.ai-buffering::before {
+  border-radius: 50%;
+  background: var(--ai-accent);
+  box-shadow: var(--ai-glow);
+}
+
+.ai-error__backdrop {
+  background: rgb(var(--ai-scrim-rgb) / 0.92);
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-header {
+  background: linear-gradient(to bottom, rgb(var(--ai-scrim-rgb) / 0.9), rgb(var(--ai-scrim-rgb) / 0));
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-surface::before {
+  background: linear-gradient(to top, rgb(var(--ai-scrim-rgb) / 0.95) 30%, rgb(var(--ai-scrim-rgb) / 0));
+}
+
+/* ---------- Type: archive label and lab instruments ---------- */
+
+.ai-wordmark {
+  font-family: var(--ai-font-display);
+  font-size: 17px;
+  font-weight: 640;
+  font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 0;
+  letter-spacing: 0.26em;
+  margin-right: -0.26em;
+}
+
+.ai-record__name {
+  font-family: var(--ai-font-display);
+  font-size: 19px;
+  font-style: italic;
+  font-weight: 380;
+  font-variation-settings: 'opsz' 48, 'SOFT' 100;
+  letter-spacing: 0;
+}
+
+.ai-info__title {
+  font-family: var(--ai-font-display);
+  font-size: 30px;
+  font-style: italic;
+  font-weight: 360;
+  font-variation-settings: 'opsz' 96, 'SOFT' 100;
+}
+
+.ai-hud__frame {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ai-clock__current,
+.ai-index__tc:not(.ai-index__tc--total) {
+  font-weight: 700;
+}
+
+/* ---------- End of reel: the fixer bath ----------
+   The safelight goes out, the print loses its colour and settles darker,
+   and a lab label is laid over it. Replay develops it again. */
+
+.ai[data-status='ended'] .ai-media-slot::slotted(*) {
+  filter: grayscale(1) sepia(0.22) brightness(0.42) contrast(1.3);
+  transition-duration: var(--ai-fix);
+}
+
+.ai:not(:fullscreen):not([data-stage]):not([data-layout='overlay']) .ai-surface {
+  transition:
+    max-height var(--ai-slow) var(--ai-ease),
+    box-shadow var(--ai-fix) var(--ai-ease);
+}
+
+.ai:not(:fullscreen):not([data-stage]):not([data-layout='overlay'])[data-status='ended'] .ai-surface {
+  box-shadow:
+    0 0 0 1px var(--ai-line),
+    0 -60px 100px -40px rgb(var(--ai-accent-rgb) / 0),
+    0 0 60px -10px rgb(0 0 0 / 0.9);
+}
+
+.ai-brand::before {
+  transition:
+    background-color var(--ai-fix) var(--ai-ease),
+    box-shadow var(--ai-fix) var(--ai-ease),
+    opacity var(--ai-fix) var(--ai-ease);
+}
+
+.ai[data-status='ended'] .ai-brand::before {
+  animation: none;
+  opacity: 0.35;
+  box-shadow: none;
+}
+
+.ai-fixed {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--ai-3);
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 70% at 50% 50%, transparent 35%, rgb(0 0 0 / 0.6));
+  opacity: 0;
+  transition: opacity var(--ai-med) var(--ai-ease);
+}
+
+.ai[data-status='ended'] .ai-fixed {
+  opacity: 1;
+  transition-duration: var(--ai-fix);
+}
+
+.ai-fixed__stamp {
+  padding: 2px 22px 6px;
+  border: 1px solid rgb(243 220 208 / 0.7);
+  color: var(--ai-paper);
+  font-family: var(--ai-font-display);
+  font-size: clamp(34px, 6cqi, 64px);
+  font-style: italic;
+  font-weight: 340;
+  font-variation-settings: 'opsz' 144, 'SOFT' 100;
+  line-height: 1.1;
+  rotate: -2deg;
+  scale: 1.06;
+  transition: scale var(--ai-fix) var(--ai-ease-out);
+}
+
+.ai[data-status='ended'] .ai-fixed__stamp {
+  scale: 1;
+}
+
+.ai-fixed__meta {
+  color: var(--ai-amber);
+  font-family: var(--ai-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Preferences ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ai::after,
+  .ai-brand::before {
+    animation: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .ai::after {
+    display: none;
+  }
+
+  .ai-hud__frame,
+  .ai-loading__label,
+  .ai-wordmark {
+    text-shadow: none;
+  }
+}

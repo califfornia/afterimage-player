@@ -1,0 +1,441 @@
+/* ==========================================================================
+   Playback states
+   `data-status` on the container comes from <ai-status>; controls visibility
+   (`data-controls-visible`) comes from the Video.js container.
+   ========================================================================== */
+
+/* ---------- Playing, idle: video dominant, chrome discreet but present ---------- */
+
+.ai[data-status='playing']:not([data-controls-visible]) :is(.ai-header, .ai-deck) {
+  opacity: 0.38;
+}
+
+.ai[data-status='playing']:not([data-controls-visible]) .ai-surface {
+  cursor: none;
+}
+
+/* Anything holding keyboard focus is fully present. */
+.ai :is(.ai-header, .ai-deck, .ai-index):has(:focus-visible) {
+  opacity: 1 !important;
+}
+
+.ai-index__meta,
+.ai-ruler {
+  transition: opacity var(--ai-idle) var(--ai-ease);
+}
+
+/* ---------- Loading ---------- */
+
+.ai-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--ai-3);
+  background: rgb(11 11 10 / 0.72);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--ai-med) var(--ai-ease), visibility 0s linear var(--ai-med);
+}
+
+.ai[data-status='loading'] .ai-loading {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.ai-loading__label {
+  color: var(--ai-ink-2);
+  font-family: var(--ai-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ai-loading__bar {
+  position: relative;
+  width: 120px;
+  height: 1px;
+  overflow: hidden;
+  background: var(--ai-line-strong);
+}
+
+.ai-loading__bar::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 32px;
+  background: var(--ai-paper);
+  animation: ai-scan 1.4s var(--ai-ease) infinite;
+}
+
+@keyframes ai-scan {
+  from { translate: -32px 0; }
+  to { translate: 120px 0; }
+}
+
+/* ---------- Buffering: a chip, not a pause ---------- */
+
+.ai-buffering {
+  position: absolute;
+  top: var(--ai-4);
+  left: 50%;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: var(--ai-2);
+  padding: 6px var(--ai-3);
+  border: 1px solid var(--ai-line-strong);
+  background: rgb(17 17 16 / 0.86);
+  color: var(--ai-paper);
+  font-family: var(--ai-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0;
+  translate: -50% -4px;
+  pointer-events: none;
+  transition: opacity var(--ai-med) var(--ai-ease), translate var(--ai-med) var(--ai-ease);
+}
+
+.ai-buffering::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--ai-paper);
+  animation: ai-blink 0.8s steps(2, jump-none) infinite;
+}
+
+.ai-buffering[data-visible] {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+/* ---------- Inspecting ---------- */
+
+.ai-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--ai-med) var(--ai-ease);
+}
+
+.ai[data-inspecting] .ai-hud {
+  opacity: 1;
+}
+
+.ai-hud__tag {
+  position: absolute;
+  top: var(--ai-4);
+  left: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 6px;
+  background: var(--ai-accent);
+  color: var(--ai-accent-ink);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: var(--ai-label-track);
+  text-transform: uppercase;
+}
+
+.ai-hud__tag media-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.ai-hud__readout {
+  position: absolute;
+  bottom: var(--ai-4);
+  left: 34px;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: var(--ai-3);
+  row-gap: 2px;
+  padding: var(--ai-2) var(--ai-3);
+  background: rgb(11 11 10 / 0.82);
+  border-left: 2px solid var(--ai-accent);
+}
+
+.ai-hud__label {
+  color: var(--ai-ink-2);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--ai-label-track);
+  text-transform: uppercase;
+}
+
+.ai-hud__frame {
+  color: var(--ai-accent);
+  font-family: var(--ai-font-mono);
+  font-size: 22px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-hud__tc {
+  color: var(--ai-paper);
+  font-family: var(--ai-font-mono);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-hud__fps {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  color: var(--ai-ink-2);
+  font-family: var(--ai-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ai[data-inspecting] .ai-reg {
+  border-color: var(--ai-accent);
+}
+
+.ai[data-inspecting] .ai-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-shadow: inset 0 0 0 1px rgb(213 255 85 / 0.35);
+  pointer-events: none;
+}
+
+@container ai (max-width: 720px) {
+  .ai-hud__tag { top: var(--ai-3); left: 24px; }
+  .ai-hud__readout { bottom: var(--ai-3); left: 24px; padding: 6px var(--ai-2); }
+  .ai-hud__frame { font-size: 17px; }
+  .ai-hud__tc { font-size: 12px; }
+}
+
+/* ---------- Error ---------- */
+
+.ai-error__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: rgb(11 11 10 / 0.92);
+  transition: opacity var(--ai-med) var(--ai-ease);
+}
+
+.ai-error__popup {
+  position: absolute;
+  inset: 0;
+  z-index: 31;
+  display: grid;
+  place-content: center;
+  justify-items: start;
+  gap: var(--ai-2);
+  max-width: 440px;
+  margin: auto;
+  padding: var(--ai-6);
+  transition: opacity var(--ai-med) var(--ai-ease);
+}
+
+.ai-error__backdrop:not([data-open]),
+.ai-error__popup:not([data-open]) {
+  display: none;
+}
+
+.ai-error__backdrop[data-starting-style],
+.ai-error__backdrop[data-ending-style],
+.ai-error__popup[data-starting-style],
+.ai-error__popup[data-ending-style] {
+  opacity: 0;
+}
+
+.ai-error__code {
+  color: var(--ai-error);
+  font-family: var(--ai-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ai-error__title {
+  display: block;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.ai-error__description {
+  display: block;
+  color: var(--ai-ink-2);
+}
+
+.ai-error__actions {
+  display: flex;
+  gap: var(--ai-2);
+  margin-top: var(--ai-3);
+}
+
+/* ==========================================================================
+   Viewer layout — fullscreen, and phones held sideways ([data-stage]):
+   the reel fills the screen; header and dock float over it and step
+   aside while playing.
+   ========================================================================== */
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) {
+  /* Dock geometry: how far the frame index sits above the foot of the screen,
+     and how high the pause read-out lifts to clear the dock. */
+  --ai-safe-b: env(safe-area-inset-bottom, 0px);
+  --ai-dock-offset: calc(72px + var(--ai-safe-b));
+  --ai-hud-lift: 220px;
+  display: block;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: #000;
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-body {
+  display: block;
+  height: 100%;
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-main {
+  height: 100%;
+  padding: 0;
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-surface {
+  position: absolute;
+  inset: 0;
+  max-height: none;
+  aspect-ratio: auto;
+  height: 100%;
+  background: #000;
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-media-slot::slotted(*) {
+  background: #000;
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-header {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 10;
+  border-bottom: 0;
+  background: linear-gradient(to bottom, rgb(11 11 10 / 0.88), rgb(11 11 10 / 0));
+  padding-bottom: var(--ai-5);
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-index,
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-deck {
+  position: relative;
+  z-index: 10;
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-main::after {
+  content: '';
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-index {
+  position: absolute;
+  right: var(--ai-gutter);
+  bottom: var(--ai-dock-offset);
+  left: var(--ai-gutter);
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-deck {
+  position: absolute;
+  right: var(--ai-gutter);
+  bottom: calc(var(--ai-2) + var(--ai-safe-b));
+  left: var(--ai-gutter);
+}
+
+/* Idle in fullscreen: the withdrawn film edge slides down to the foot of the screen. */
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']):not([data-controls-visible]) .ai-index:not(:has(:focus-visible)) {
+  /* the folded index sits --ai-dock-offset up; drop its film edge to the foot of the screen */
+  translate: 0 calc(var(--ai-dock-offset) - 2px - var(--ai-safe-b));
+}
+
+/* Scrim behind the dock, for contrast over bright frames. */
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-surface::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  height: 280px;
+  background: linear-gradient(to top, rgb(11 11 10 / 0.94) 30%, rgb(11 11 10 / 0));
+  pointer-events: none;
+  transition: opacity var(--ai-med) var(--ai-ease);
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']):not([data-controls-visible]) :is(.ai-header, .ai-deck),
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']):not([data-controls-visible]) .ai-surface::before {
+  opacity: 0;
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']):not([data-controls-visible]) .ai-hud__readout {
+  bottom: var(--ai-5);
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay'])[data-controls-visible] .ai-hud__readout,
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay'])[data-inspecting] .ai-hud__readout {
+  bottom: var(--ai-hud-lift);
+}
+
+/* Overlay layout (layout="overlay"): the viewer layout inside the host's own box,
+   for apps that frame the player and show the record's title themselves. The
+   header (title, catalogue card, settings) returns only in fullscreen. */
+.ai[data-layout='overlay']:not(:fullscreen):not([data-stage]) {
+  height: 100%;
+  min-height: 0;
+}
+
+.ai[data-layout='overlay']:not(:fullscreen) .ai-header {
+  display: none;
+}
+
+.ai[data-layout='overlay']:not(:fullscreen) .ai-hud__tag {
+  top: var(--ai-4);
+}
+
+/* The pause tag clears the floating header. */
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-hud__tag {
+  top: calc(var(--ai-header-h) + var(--ai-3));
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-reg {
+  display: none;
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay']) .ai-info {
+  position: absolute;
+  top: var(--ai-header-h);
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  width: 0;
+  transition: width var(--ai-slow) var(--ai-ease);
+}
+
+.ai:is(:fullscreen, [data-stage], [data-layout='overlay'])[data-info-open] .ai-info {
+  width: var(--ai-info-w);
+}
+
+/* ==========================================================================
+   Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-loading__bar::after {
+    animation: none;
+    width: 100%;
+    opacity: 0.4;
+  }
+
+  .ai-buffering::before {
+    animation: none;
+  }
+}

@@ -1,0 +1,520 @@
+/* ==========================================================================
+   C · Frame index
+   A contact sheet laid along the reel. The whole strip is one Video.js time
+   slider: click, drag and keys seek; the lime playhead is the slider thumb.
+   ========================================================================== */
+
+.ai-index {
+  padding-top: var(--ai-index-pad);
+}
+
+/* ---------- Meta line ---------- */
+
+.ai-index__meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ai-4);
+  height: var(--ai-meta-h);
+  margin-bottom: var(--ai-2);
+  white-space: nowrap;
+}
+
+.ai-index__heading {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--ai-label-track);
+  text-transform: uppercase;
+}
+
+.ai-index__chapter {
+  overflow: hidden;
+  color: var(--ai-paper);
+  font-family: var(--ai-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.ai-index__source {
+  color: var(--ai-ink-3);
+  font-family: var(--ai-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ai-index__clock {
+  display: inline-flex;
+  gap: 6px;
+  margin-left: auto;
+  font-family: var(--ai-font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-index__of,
+.ai-index__tc--total {
+  color: var(--ai-ink-2);
+}
+
+/* ---------- The slider ---------- */
+
+.ai-slider {
+  position: relative;
+  display: block;
+  padding-bottom: 2px;
+  cursor: pointer;
+  touch-action: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ai-slider[data-dragging] {
+  cursor: grabbing;
+}
+
+/* Focus lands on the slider thumb (role="slider"); ring the whole index. */
+.ai-playhead:focus-visible {
+  outline: none;
+}
+
+.ai-slider:has(.ai-playhead:focus-visible) {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: 4px;
+}
+
+/* Hover hairline: where a click would land. */
+.ai-slider::after {
+  content: '';
+  position: absolute;
+  top: var(--ai-ruler-h);
+  bottom: 0;
+  left: var(--media-slider-pointer, 0%);
+  z-index: 3;
+  width: 1px;
+  background: var(--ai-paper);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ai-slider[data-pointing]:not([data-dragging])::after {
+  opacity: 0.55;
+}
+
+/* ---------- Chapter ruler ---------- */
+
+.ai-ruler {
+  position: relative;
+  display: block;
+  height: var(--ai-ruler-h);
+}
+
+.ai-chapter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--start);
+  width: calc(var(--end) - var(--start));
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 0 var(--ai-2) 0 5px;
+  overflow: hidden;
+  border-left: 1px solid var(--ai-line-loud);
+  color: var(--ai-ink-3);
+  font-family: var(--ai-font-mono);
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color var(--ai-med) var(--ai-ease), border-color var(--ai-med) var(--ai-ease);
+}
+
+.ai-chapter__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-chapter[data-active] {
+  border-left-color: var(--ai-paper);
+  color: var(--ai-paper);
+}
+
+.ai-chapter[data-active] .ai-chapter__num {
+  color: var(--ai-ink-2);
+}
+
+/* ---------- Track: film base + strip + rail ---------- */
+
+.ai-track {
+  position: relative;
+  display: block;
+}
+
+.ai-sheet {
+  --ai-holes: repeating-linear-gradient(90deg, rgb(0 0 0 / 0.55) 0 5px, transparent 5px 12px);
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--ai-frame-count, 12), minmax(0, 1fr));
+  gap: 2px;
+  height: calc(var(--ai-strip-h) + var(--ai-edge) * 2);
+  padding: var(--ai-edge) 0;
+  background-color: var(--ai-surface);
+  /* Sprocket holes along both edges of the film base. */
+  background-image: var(--ai-holes), var(--ai-holes);
+  background-position: 3px 2px, 3px calc(100% - 2px);
+  background-size: 100% 4px;
+  background-repeat: no-repeat;
+}
+
+/* The top edge exposes with playback: it fills in step with the progress rail. */
+.ai-sheet::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: var(--media-slider-fill, 0%);
+  height: var(--ai-edge);
+  background: var(--ai-holes) 3px 2px / 100% 4px no-repeat, rgb(232 225 211 / 0.82);
+  pointer-events: none;
+}
+
+.ai-slider[data-dragging] .ai-sheet::before {
+  width: var(--media-slider-pointer);
+}
+
+/* Position tick on the edge, shown when the strip withdraws. */
+.ai-sheet::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--media-slider-fill, 0%);
+  z-index: 2;
+  width: 2px;
+  height: var(--ai-edge);
+  background: var(--ai-accent);
+  translate: -50% 0;
+  opacity: 0;
+  transition: opacity var(--ai-med) var(--ai-ease);
+  pointer-events: none;
+}
+
+.ai-cell {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--ai-raised);
+}
+
+.ai-cell__image {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  /* Unwatched frames read as latent; frames already passed are developed. */
+  filter: grayscale(0.85) brightness(0.5) contrast(1.05);
+  transition: filter var(--ai-slow) var(--ai-ease);
+}
+
+.ai-cell[data-exposed] .ai-cell__image,
+.ai-cell[data-current] .ai-cell__image {
+  filter: none;
+}
+
+.ai-cell[data-current]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px var(--ai-accent);
+  pointer-events: none;
+}
+
+.ai-cell__edge {
+  position: absolute;
+  bottom: 3px;
+  left: 4px;
+  color: var(--ai-paper);
+  font-family: var(--ai-font-mono);
+  font-size: 9px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  text-shadow: 0 0 3px rgb(0 0 0 / 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-cell[data-current] .ai-cell__edge {
+  color: var(--ai-accent);
+  opacity: 1;
+}
+
+/* Without stills: blank numbered frames with a faint frame line. */
+.ai-sheet:not([data-stills]) .ai-cell {
+  background:
+    linear-gradient(to bottom right, transparent calc(50% - 0.5px), var(--ai-line) 50%, transparent calc(50% + 0.5px)),
+    var(--ai-raised);
+}
+
+.ai-sheet:not([data-stills]) .ai-cell__edge {
+  color: var(--ai-ink-2);
+  text-shadow: none;
+}
+
+/* Playback rail: buffered and played, continuous under the strip. */
+.ai-rail {
+  position: relative;
+  display: block;
+  height: 2px;
+  margin-top: 4px;
+  background: var(--ai-line-strong);
+}
+
+.ai-rail__buffer,
+.ai-rail__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: block;
+}
+
+.ai-rail__buffer {
+  width: var(--media-slider-buffer);
+  background: var(--ai-line-loud);
+  transition: width var(--ai-med) linear;
+}
+
+.ai-rail__fill {
+  width: var(--media-slider-fill);
+  background: var(--ai-paper);
+}
+
+.ai-slider[data-dragging] .ai-rail__fill {
+  width: var(--media-slider-pointer);
+}
+
+/* ---------- Playhead (slider thumb) ---------- */
+
+.ai-playhead {
+  position: absolute;
+  top: calc(var(--ai-ruler-h) - 6px);
+  bottom: 0;
+  left: var(--media-slider-fill);
+  z-index: 4;
+  display: block;
+  width: 2px;
+  background: var(--ai-accent);
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+/* The flag: a small lime tab above the strip. */
+.ai-playhead::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 9px;
+  height: 7px;
+  background: var(--ai-accent);
+  clip-path: polygon(0 0, 100% 0, 100% 55%, 50% 100%, 0 55%);
+  translate: -50% 0;
+}
+
+.ai-slider[data-dragging] .ai-playhead {
+  left: var(--media-slider-pointer);
+}
+
+.ai-playhead:focus-visible::before {
+  box-shadow: 0 0 0 2px var(--ai-bg);
+}
+
+/* ---------- Idle while playing: the reel folds to its top edge ----------
+   The strip really collapses, down to its sprocket edge (which keeps filling
+   with progress), and the picture grows by exactly the height given up
+   (--ai-fold), so nothing below moves and no empty band is left behind. */
+
+.ai-body {
+  /* Declared on the body so compact overrides (set there) feed the sum.
+     (index padding - 8) + meta line + ruler + strip + lower film edge + rail */
+  --ai-fold: calc(var(--ai-index-pad) - 8px + var(--ai-meta-h) + 8px + var(--ai-ruler-h) + var(--ai-strip-h) + var(--ai-edge) + 6px);
+}
+
+.ai-index__meta,
+.ai-ruler,
+.ai-rail,
+.ai-playhead {
+  transition:
+    height var(--ai-slow) var(--ai-ease),
+    margin var(--ai-slow) var(--ai-ease),
+    opacity var(--ai-med) var(--ai-ease);
+}
+
+.ai-index {
+  transition:
+    padding var(--ai-slow) var(--ai-ease),
+    opacity var(--ai-idle) var(--ai-ease),
+    translate var(--ai-slow) var(--ai-ease);
+}
+
+.ai-sheet {
+  grid-template-rows: var(--ai-strip-h);
+  overflow: hidden;
+  transition:
+    height var(--ai-slow) var(--ai-ease),
+    padding var(--ai-slow) var(--ai-ease);
+}
+
+.ai-surface {
+  transition: max-height var(--ai-slow) var(--ai-ease);
+}
+
+.ai:not([data-controls-visible]):not(:has(.ai-index :focus-visible)) .ai-index {
+  padding-top: 8px;
+}
+
+.ai:not([data-controls-visible]):not(:has(.ai-index :focus-visible)) :is(.ai-index__meta, .ai-ruler) {
+  height: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.ai:not([data-controls-visible]):not(:has(.ai-index :focus-visible)) .ai-sheet {
+  height: var(--ai-edge);
+  padding-bottom: 0;
+}
+
+.ai:not([data-controls-visible]):not(:has(.ai-index :focus-visible)) .ai-sheet::after {
+  opacity: 1;
+}
+
+.ai:not([data-controls-visible]):not(:has(.ai-index :focus-visible)) .ai-rail {
+  height: 0;
+  margin: 0;
+  opacity: 0;
+}
+
+.ai:not([data-controls-visible]):not(:has(.ai-index :focus-visible)) .ai-playhead {
+  opacity: 0;
+}
+
+.ai:not(:fullscreen):not([data-stage]):not([data-layout='overlay']):not([data-controls-visible]):not(:has(.ai-index :focus-visible)) .ai-surface {
+  max-height: calc(var(--ai-surface-max) + var(--ai-fold));
+}
+
+/* ---------- Loupe: a frame lifted out of the strip ----------
+   A short length of film: sprocket holes above and below the picture,
+   chapter and time printed on the edge. It rises from the strip's top edge. */
+
+.ai-loupe {
+  --ai-film: #23221f;
+  --ai-loupe-holes: repeating-linear-gradient(90deg, rgb(11 11 10 / 0.92) 0 7px, transparent 7px 15px);
+  position: absolute;
+  /* Video.js sets left inline, clamped to the slider; we seat it on the strip's top edge. */
+  bottom: calc(100% - var(--ai-ruler-h));
+  z-index: 20;
+  display: grid;
+  padding-top: 15px;
+  background:
+    var(--ai-loupe-holes) 4px 5px / 100% 5px no-repeat,
+    var(--ai-film);
+  box-shadow:
+    0 0 0 1px rgb(0 0 0 / 0.35),
+    0 18px 40px rgb(0 0 0 / 0.55);
+  pointer-events: none;
+  opacity: 0;
+  transform-origin: 50% 100%;
+  transform: translateY(calc(var(--ai-strip-h) * 0.6)) scale(0.55);
+  transition:
+    opacity var(--ai-fast) var(--ai-ease-out),
+    transform var(--ai-med) var(--ai-ease-out);
+}
+
+.ai-slider[data-pointing] .ai-loupe,
+.ai-slider[data-dragging] .ai-loupe,
+.ai-slider:has(.ai-playhead:focus-visible) .ai-loupe {
+  opacity: 1;
+  transform: none;
+}
+
+.ai-loupe__image {
+  display: block;
+  width: var(--ai-loupe-w, 240px);
+  aspect-ratio: 16 / 9;
+  margin: 0 8px;
+  overflow: hidden;
+  background: var(--ai-raised);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.5);
+}
+
+.ai-loupe__image[data-hidden] {
+  display: none;
+}
+
+/* Lower film edge: sprocket holes, then the edge print. */
+.ai-loupe__caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ai-2);
+  padding: 17px 9px 6px;
+  background: var(--ai-loupe-holes) 4px 6px / 100% 5px no-repeat;
+  font-family: var(--ai-font-mono);
+  font-size: 10px;
+  line-height: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ai-loupe__chapter {
+  overflow: hidden;
+  color: var(--ai-ink-2);
+  letter-spacing: 0.1em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.ai-loupe__chapter:empty {
+  display: none;
+}
+
+.ai-loupe__time {
+  margin-left: auto;
+  color: var(--ai-paper);
+  font-size: 11px;
+}
+
+/* ---------- Compact ---------- */
+
+@container ai (max-width: 720px) {
+
+  .ai-index__heading,
+  .ai-index__source {
+    display: none;
+  }
+
+  .ai-chapter__title {
+    display: none;
+  }
+
+  .ai-chapter[data-active] .ai-chapter__title {
+    display: inline;
+  }
+
+  .ai-cell__edge {
+    display: none;
+  }
+
+  .ai-loupe {
+    --ai-loupe-w: 176px;
+  }
+}
+
+@media (pointer: coarse) {
+  /* A taller hit area for thumbs without changing the drawing. */
+  .ai-slider {
+    padding-top: 4px;
+  }
+}

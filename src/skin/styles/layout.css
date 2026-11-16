@@ -1,0 +1,310 @@
+/* ==========================================================================
+   Page frame
+   The <media-container> is the whole AFTERIMAGE instrument, so fullscreen
+   takes the frame index and deck with it.
+   ========================================================================== */
+
+
+.ai {
+  container: ai / inline-size;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: var(--ai-min-height, 0px);
+  overflow-x: clip;
+  background: var(--ai-bg);
+  color: var(--ai-paper);
+}
+
+/* ---------- A · Archive header ---------- */
+
+.ai-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--ai-6);
+  min-height: var(--ai-header-h);
+  padding: 0 var(--ai-gutter);
+  border-bottom: 1px solid var(--ai-line);
+  transition: opacity var(--ai-idle) var(--ai-ease);
+}
+
+.ai-brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ai-3);
+  white-space: nowrap;
+}
+
+.ai-wordmark {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0.34em;
+  margin-right: -0.34em;
+}
+
+.ai-descriptor {
+  padding-left: var(--ai-3);
+  border-left: 1px solid var(--ai-line-strong);
+  color: var(--ai-ink-2);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: var(--ai-label-track);
+  text-transform: uppercase;
+}
+
+.ai-record {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ai-5);
+  min-width: 0;
+}
+
+.ai-record__id {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ai-2);
+  flex: none;
+  color: var(--ai-ink-2);
+  font-family: var(--ai-font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ai-record__slash {
+  color: var(--ai-ink-3);
+}
+
+.ai-record__title {
+  min-width: 0;
+}
+
+.ai-record__name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-header__end {
+  display: flex;
+  align-items: center;
+  gap: var(--ai-1);
+}
+
+.ai-header__end .ai-status {
+  margin-right: var(--ai-3);
+}
+
+/* ---------- Body: reel + optional catalogue card ---------- */
+
+.ai-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 0px;
+  min-height: 0;
+  transition: grid-template-columns var(--ai-slow) var(--ai-ease);
+}
+
+.ai[data-info-open] .ai-body {
+  grid-template-columns: minmax(0, 1fr) var(--ai-info-w);
+}
+
+.ai-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--ai-5) var(--ai-gutter) var(--ai-4);
+}
+
+/* ---------- B · Viewing surface ---------- */
+
+.ai-surface {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--ai-media-ratio, 16 / 9);
+  /* Leave room for header, frame index and deck so the whole instrument fits one screen. */
+  max-height: var(--ai-surface-max);
+  overflow: hidden;
+  background: var(--ai-screen);
+}
+
+.ai-media-slot::slotted(*) {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--ai-screen);
+}
+
+/* Registration marks: four corner crops, like an enlarger easel. */
+.ai-reg {
+  position: absolute;
+  z-index: 2;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  border-color: var(--ai-line-loud);
+  border-style: solid;
+  border-width: 0;
+  transition: border-color var(--ai-med) var(--ai-ease), inset var(--ai-med) var(--ai-ease);
+}
+
+.ai-reg--tl { top: 10px; left: 10px; border-top-width: 1px; border-left-width: 1px; }
+.ai-reg--tr { top: 10px; right: 10px; border-top-width: 1px; border-right-width: 1px; }
+.ai-reg--bl { bottom: 10px; left: 10px; border-bottom-width: 1px; border-left-width: 1px; }
+.ai-reg--br { right: 10px; bottom: 10px; border-right-width: 1px; border-bottom-width: 1px; }
+
+/* ---------- D · Control deck ---------- */
+
+.ai-deck {
+  display: flex;
+  align-items: center;
+  gap: var(--ai-2);
+  min-height: 56px;
+  padding-top: var(--ai-3);
+  transition: opacity var(--ai-idle) var(--ai-ease);
+}
+
+.ai-deck__transport,
+.ai-deck__volume,
+.ai-deck__end {
+  display: flex;
+  align-items: center;
+  gap: var(--ai-1);
+}
+
+.ai-deck__transport {
+  gap: var(--ai-1);
+  padding-right: var(--ai-2);
+}
+
+.ai-deck__volume {
+  padding: 0 var(--ai-3) 0 var(--ai-2);
+  border-left: 1px solid var(--ai-line);
+}
+
+.ai-clock {
+  padding-left: var(--ai-4);
+  border-left: 1px solid var(--ai-line);
+}
+
+.ai-inspect {
+  margin-left: auto;
+}
+
+.ai-deck__end {
+  padding-left: var(--ai-3);
+  border-left: 1px solid var(--ai-line);
+}
+
+/* ==========================================================================
+   Medium: tighter header
+   ========================================================================== */
+
+@container ai (max-width: 1040px) {
+  .ai-descriptor {
+    display: none;
+  }
+
+  .ai-header {
+    gap: var(--ai-5);
+  }
+}
+
+/* ==========================================================================
+   Compact (phones, narrow windows): reorganised, not shrunk
+   ========================================================================== */
+
+@container ai (max-width: 720px) {
+  /* Tokens go on the children: a container query cannot restyle its own container. */
+  .ai-header,
+  .ai-body {
+    --ai-gutter: 16px;
+    --ai-strip-h: 46px;
+    --ai-ruler-h: 14px;
+    --ai-frame-target: 64px;
+    --ai-index-pad: 12px;
+  }
+
+  .ai-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'brand end'
+      'record record';
+    row-gap: var(--ai-1);
+    padding-top: var(--ai-2);
+    padding-bottom: var(--ai-3);
+  }
+
+  .ai-brand { grid-area: brand; }
+  .ai-header__end { grid-area: end; }
+  .ai-record {
+    grid-area: record;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .ai-record__name {
+    font-size: 16px;
+  }
+
+  .ai-header__end .ai-status {
+    margin-right: var(--ai-1);
+  }
+
+  .ai-body,
+  .ai[data-info-open] .ai-body {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+  }
+
+  .ai-main {
+    padding: 0 0 var(--ai-3);
+  }
+
+  .ai-surface {
+    --ai-surface-max: 72svh;
+  }
+
+  .ai-reg { width: 10px; height: 10px; }
+  .ai-reg--tl, .ai-reg--tr { top: 8px; }
+  .ai-reg--bl, .ai-reg--br { bottom: 8px; }
+  .ai-reg--tl, .ai-reg--bl { left: 8px; }
+  .ai-reg--tr, .ai-reg--br { right: 8px; }
+
+  .ai-index,
+  .ai-deck {
+    padding-left: var(--ai-gutter);
+    padding-right: var(--ai-gutter);
+  }
+
+  /* Two rows: transport + clock + fullscreen, then sound, inspect, speed. */
+  .ai-deck {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'transport clock end'
+      'volume inspect inspect';
+    row-gap: var(--ai-2);
+    column-gap: var(--ai-2);
+  }
+
+  .ai-deck__transport { grid-area: transport; padding-right: 0; }
+  .ai-clock { grid-area: clock; justify-self: center; padding-left: 0; border-left: 0; }
+  .ai-deck__end { grid-area: end; padding-left: 0; border-left: 0; }
+  .ai-deck__volume { grid-area: volume; padding: 0; border-left: 0; }
+  .ai-inspect { grid-area: inspect; justify-self: end; margin-left: 0; }
+}
+
+@container ai (max-width: 380px) {
+  .ai-descriptor,
+  .ai-header__end .ai-status .ai-status__label {
+    display: none;
+  }
+}

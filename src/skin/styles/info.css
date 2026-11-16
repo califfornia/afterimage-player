@@ -1,0 +1,172 @@
+/* ==========================================================================
+   Catalogue card — archive information panel
+   Desktop: a column that opens beside the reel. Compact: a section that
+   unfolds below the deck. Either way playback is undisturbed.
+   ========================================================================== */
+
+.ai-info {
+  min-width: 0;
+  overflow: hidden;
+  background: var(--ai-surface);
+  box-shadow: inset 1px 0 0 var(--ai-line);
+}
+
+.ai-info__inner {
+  display: grid;
+  align-content: start;
+  gap: var(--ai-5);
+  width: var(--ai-info-w);
+  height: 100%;
+  padding: var(--ai-5) var(--ai-gutter) var(--ai-6);
+  overflow-y: auto;
+  opacity: 0;
+  transition: opacity var(--ai-med) var(--ai-ease);
+}
+
+.ai-info[data-open='true'] .ai-info__inner {
+  opacity: 1;
+  transition-delay: 80ms;
+}
+
+.ai-info__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -8px -10px -8px 0;
+}
+
+.ai-info__heading {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--ai-label-track);
+  text-transform: uppercase;
+}
+
+.ai-info__heading:focus-visible {
+  outline-offset: 4px;
+}
+
+.ai-info__title {
+  padding-bottom: var(--ai-4);
+  border-bottom: 1px solid var(--ai-line-strong);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.ai-info__fields {
+  display: grid;
+}
+
+.ai-info__fields > div {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: var(--ai-3);
+  padding: 9px 0;
+  border-bottom: 1px solid var(--ai-line);
+}
+
+.ai-info__fields dt {
+  color: var(--ai-ink-2);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--ai-label-track);
+  line-height: 18px;
+  text-transform: uppercase;
+}
+
+.ai-info__fields dd {
+  font-family: var(--ai-font-mono);
+  font-size: 12px;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-info__aside {
+  margin-left: var(--ai-2);
+  color: var(--ai-ink-2);
+}
+
+.ai-info__description {
+  color: var(--ai-paper);
+  font-size: 14px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.ai-info__source {
+  color: var(--ai-ink-2);
+  font-size: 12px;
+}
+
+.ai-info__keys h3 {
+  margin: 0 0 var(--ai-2);
+  color: var(--ai-ink-2);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--ai-label-track);
+  text-transform: uppercase;
+}
+
+.ai-info__keys dl {
+  display: grid;
+  gap: 6px;
+}
+
+.ai-info__keys dl > div {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: var(--ai-3);
+  align-items: center;
+}
+
+.ai-info__keys dt {
+  display: flex;
+  gap: 4px;
+  color: var(--ai-ink-2);
+}
+
+.ai-info__keys dd {
+  color: var(--ai-ink-2);
+  font-size: 12px;
+}
+
+@media (pointer: coarse) {
+  .ai-info__keys {
+    display: none;
+  }
+}
+
+/* ---------- Compact: unfold below ---------- */
+
+@container ai (max-width: 720px) {
+  .ai-info {
+    display: grid;
+    grid-template-rows: 0fr;
+    border-top: 1px solid var(--ai-line);
+    box-shadow: none;
+    transition: grid-template-rows var(--ai-slow) var(--ai-ease);
+  }
+
+  .ai-info[data-open='true'] {
+    grid-template-rows: 1fr;
+  }
+
+  .ai-info[data-open='false'] {
+    border-top-color: transparent;
+    background: transparent;
+  }
+
+  .ai-info__inner {
+    width: auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: var(--ai-5) var(--ai-gutter) var(--ai-6);
+  }
+
+  .ai-info[data-open='false'] .ai-info__inner {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}

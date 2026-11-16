@@ -1,0 +1,114 @@
+/*
+ * AFTERIMAGE tokens.
+ * Colour, type, spacing and motion live here; components only reference them.
+ * They are set on the skin host, so a page can override any of them:
+ *   afterimage-skin { --ai-accent: #d5ff55; }
+ */
+:host {
+  display: block;
+  color-scheme: dark;
+
+  /* Surfaces */
+  --ai-bg: #0c0706;
+  --ai-surface: #160c0a;
+  --ai-raised: #22110d;
+  --ai-pressed: #2e1611;
+  --ai-screen: #050202; /* the viewing surface: the easel under the enlarger */
+
+  /* Ink */
+  --ai-paper: #f3dcd0; /* print paper under safelight */
+  --ai-ink-2: #c0948a;
+  --ai-ink-3: #86594f; /* decorative / non-essential detail only: below 4.5:1 on --ai-bg */
+
+  /* Signal. Accent is the safelight: position, selection, focus and active state. */
+  --ai-accent: #ff4b2e;
+  --ai-accent-rgb: 255 75 46;
+  --ai-accent-ink: #0c0706;
+  --ai-amber: #ffaa4d; /* negative base, edge print */
+  --ai-error: #ffc75a;
+  --ai-glow: 0 0 6px rgb(var(--ai-accent-rgb) / 0.75), 0 0 18px rgb(var(--ai-accent-rgb) / 0.35);
+  --ai-scrim-rgb: 8 4 3;
+
+  /* Lines */
+  --ai-line: rgb(255 140 110 / 0.1);
+  --ai-line-strong: rgb(255 140 110 / 0.2);
+  --ai-line-loud: rgb(255 150 120 / 0.36);
+
+  /* Type */
+  --ai-font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI Variable Text', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ai-font-display: 'Fraunces Variable', 'Iowan Old Style', Georgia, serif;
+  --ai-font-mono: 'Space Mono', ui-monospace, 'SF Mono', SFMono-Regular, 'JetBrains Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --ai-label-size: 11px;
+  --ai-label-track: 0.14em;
+  --ai-mono-size: 12px;
+
+  /* Space: 4 px grid */
+  --ai-1: 4px;
+  --ai-2: 8px;
+  --ai-3: 12px;
+  --ai-4: 16px;
+  --ai-5: 24px;
+  --ai-6: 32px;
+  --ai-7: 48px;
+  --ai-gutter: 24px;
+
+  /* Geometry */
+  --ai-radius: 2px;
+  --ai-control: 40px;
+  --ai-control-primary: 44px;
+  --ai-header-h: 56px;
+  --ai-strip-h: 64px;
+  --ai-ruler-h: 20px;
+  --ai-frame-target: 104px; /* preferred cell width; the strip divides evenly */
+  --ai-edge: 8px; /* film edge carrying the sprocket holes */
+  --ai-index-pad: 16px; /* space between the picture and the frame index */
+  --ai-meta-h: 20px;
+  --ai-surface-max: max(220px, calc(100svh - 304px));
+  --ai-info-w: 360px;
+  --ai-focus: 0 0 0 2px var(--ai-bg), 0 0 0 4px var(--ai-accent);
+
+  /* Motion */
+  --ai-ease: cubic-bezier(0.2, 0, 0, 1);
+  --ai-ease-out: cubic-bezier(0.3, 0, 0.1, 1);
+  --ai-fast: 110ms;
+  --ai-med: 200ms;
+  --ai-slow: 360ms;
+  --ai-idle: 600ms;
+  --ai-develop: 2200ms; /* a print coming up in the tray */
+  --ai-fix: 3600ms; /* the fixer bath at the end of the reel */
+}
+
+@media (pointer: coarse) {
+  :host {
+    --ai-control: 44px;
+    --ai-control-primary: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    --ai-fast: 0.01ms;
+    --ai-med: 0.01ms;
+    --ai-slow: 0.01ms;
+    --ai-idle: 0.01ms;
+    --ai-develop: 0.01ms;
+    --ai-fix: 0.01ms;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :host {
+    --ai-ink-2: #e0bfb5;
+    --ai-ink-3: #c0948a;
+    --ai-line: rgb(255 170 150 / 0.26);
+    --ai-line-strong: rgb(255 170 150 / 0.42);
+  }
+}
+
+:host([layout='overlay']) {
+  height: 100%;
+}
+
+:host([hidden]) {
+  display: none;
+}

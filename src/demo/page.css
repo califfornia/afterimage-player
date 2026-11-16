@@ -1,0 +1,57 @@
+/* ==========================================================================
+   The demo page. Page-level only: colour behind the skin, selection, the
+   skip link, and a full-window player. The darkroom itself is in the skin.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+  --room-bg: #0c0706;
+  --room-paper: #f3dcd0;
+  --room-accent-rgb: 255 75 46;
+}
+
+html {
+  background: var(--room-bg);
+  scrollbar-color: #2e1611 var(--room-bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--room-bg);
+  color: var(--room-paper);
+}
+
+::selection {
+  background: rgb(var(--room-accent-rgb) / 0.4);
+  color: var(--room-paper);
+}
+
+video-player {
+  display: block;
+}
+
+/* The demo player fills the window. Embedded elsewhere, the skin sizes to its content. */
+afterimage-skin {
+  --ai-min-height: 100svh;
+}
+
+.ai-skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--room-paper);
+  color: var(--room-bg);
+  font: 600 13px/1.4 ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.ai-skip:focus-visible {
+  transform: none;
+  outline: 2px solid rgb(var(--room-accent-rgb));
+  outline-offset: 2px;
+}
