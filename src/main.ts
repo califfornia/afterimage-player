@@ -4,6 +4,7 @@
  * register the skin, then write the markup in index.html.
  */
 import '@videojs/html/video/player';
+import '@videojs/html/media/mux-video';
 import './skin';
 
 // Typefaces the skin's tokens ask for. Pages that skip them fall back to system fonts.

@@ -19,10 +19,9 @@ npm run build:skin   # typecheck + build the skin alone → dist-skin/afterimage
 | `src/skin/template.ts` | The skin's markup, built from Video.js UI components |
 | `src/skin/elements/` | AFTERIMAGE parts that read Video.js state (`PlayerController`) |
 | `src/skin/styles/` | Tokens and styles, adopted into the shadow root |
-| `src/main.ts`, `index.html` | The demo page: player + skin + this reel's catalogue record |
+| `src/main.ts`, `index.html` | The demo page: player + skin + a reel hosted on Mux (`<mux-video>`, public playback ID `UME4t00Pk2nzKCqy2nmkFn4j7OY02caeTcl94dPeWYG3o`) |
 | `src/demo/page.css` | Demo page basics: background, skip link, full-window player. The darkroom (safelight glow, grain) is in the skin. |
 | `examples/` | The skin on a foreign light page, two players at once, from source and from the built bundle |
-| `public/chapters.vtt` | Sample chapters for the demo reel |
 
 Video.js owns playback and the accessible controls: play, seek, mute, volume, time, speed menu, fullscreen, the time slider that *is* the frame index, hotkeys, error dialog, buffering indicator and status announcer. AFTERIMAGE adds:
 
@@ -37,3 +36,7 @@ Video.js owns playback and the accessible controls: play, seek, mute, volume, ti
 - **Timecode** is non-drop-frame (`HH:MM:SS:FF`).
 - **Copy** is English and lives in the template and elements; Video.js controls keep their translated labels.
 - **Touch volume** is left to the hardware buttons; mute stays.
+
+## Licence
+
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
